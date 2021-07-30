@@ -1,0 +1,2 @@
+./tezos-client originate contract contract_oracle transferring 0 from alice running oracle.tz --init 'Pair (Pair (Pair <Address> "1900-01-01") 0 "1900-01-01") 0 0' --burn-cap 0.5
+<Address> need to be filled with the one which later has the right to update values of the oracle contract.
