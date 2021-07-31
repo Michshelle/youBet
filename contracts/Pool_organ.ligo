@@ -29,10 +29,10 @@ type action is
 | ValidationAmount
 | Withdrawal
 
-function adminwithdrawal (const amt : tez) : list(operation) * contract_storage is
+function adminwithdrawal (const amt : tez) : return is
 block {
-
-} with s
+    skip;
+} with ((nil : list(operation)),s)
 
 function checktimepointbet (var s : contract_storage) : contract_storage is 
 block {
