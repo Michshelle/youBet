@@ -26,5 +26,5 @@ str_current_date = "\"" + current_date.strftime("%Y-%m-%d") + "\""
 str_previous_date = "\"" + previous_date.strftime("%Y-%m-%d") + "\""
 
 #Apply to smartpy to update value may seem more elegant, however due to limited server capacity it is better to just opt to cmdline.
-str_command = "/Users/mich/tezos/tezos-client transfer 0 from alice to contract_oracle_testing --entrypoint update --arg '(Pair (Pair " + str_amplify_currentq +" "+ str_current_date + ") (Pair " + str_amplify_previousq +" " + str_previous_date + "))' --burn-cap 0.5"
+str_command = "/Users/mich/tezos/tezos-client transfer 0 from alice to contract_oracle --entrypoint update --arg '(Pair (Pair " + str_amplify_currentq +" "+ str_current_date + ") (Pair " + str_amplify_previousq +" " + str_previous_date + "))' --burn-cap 0.5"
 subprocess.run(str_command, shell=True)

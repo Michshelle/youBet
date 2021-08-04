@@ -7,6 +7,7 @@ record [
 type return is list(operation) * storage
 type actions is 
 | GetResult of string
+| SetTargetdate of string
 | HandleCallback of nat
 
 function getResult(const tdate: string; var s : storage) : return is 
@@ -25,13 +26,23 @@ block{
     const resp : list(operation) = list [Tezos.transaction(param,0mutez,oracle)];
 } with (resp,s);
 
+function setTargetdate(const ndate : string; var s : storage) : return is 
+block {
+    s.target_date := ndate;
+} with ((nil: list(operation)),s)
+
 function handleCallback(const calledvalue : nat; var s : storage) : return is
 block{
+
+    //进pool_organ分配。
     s.current_result := calledvalue;  
+    
 }with ((nil: list(operation)),s);
+
 
 function main (const p : actions; const s : storage) : return is
 case p of 
 | GetResult(t) -> getResult(t,s)
+| SetTargetdate(t) -> setTargetdate(t,s)
 | HandleCallback(n) -> handleCallback(n,s)
 end
