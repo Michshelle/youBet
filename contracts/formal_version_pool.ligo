@@ -16,9 +16,10 @@ type actions is
 | GetResult of string
 | SetTargetdate of string
 | AdminWithdrawal of tez  
-| Bet of (bool) 
+| Bet of bool
 | HandleCallback of nat
 | Withdrawal 
+const start_timestamp : timestamp = ("1970-01-01T00:00:00Z" : timestamp)
 
 function sum_map (var m : map (address, nat)) : nat is block {
   var int_total : nat := 0n;
@@ -35,6 +36,7 @@ block {
 
 function adminwithdrawal (const amt : tez; var s : storage) : return is
 block {
+
     if Tezos.sender =/= Tezos.source then failwith ("Only can be executed by the contract originator") else skip;
     const total_value : nat = sum_map(s.accounts);
     if Tezos.balance < (s.nbalance + s.ybalance + total_value +10000000n) * 1mutez + amt then failwith ("Admin cannot make any operation as the balance of the contract is smaller than the pool") else skip;
@@ -75,6 +77,8 @@ block {
 function bet (const betbool : bool; var s : storage) : return is
 block {
   validatingamount(s);
+  //below is to make sure bet function only opens from 0830 to 0900, i.e.,local time 1630 to 1700
+  if ((Tezos.now - start_timestamp - 30_600n ) mod 86_400n > 1800n) then failwith ("bet deadline for today") else skip;
   if Tezos.amount < 1.0tez then failwith ("the amount must be larger than 1 tezos") else skip;
   case s.stake[Tezos.sender] of 
     Some(pattern) -> failwith ("It is on the current list.") 
@@ -143,6 +147,7 @@ block{
 
 function getResult(const tdate: string; var s : storage) : return is 
 block{
+    if ((Tezos.now - start_timestamp - 28_800n ) mod 86_400n > 1800n) then failwith ("getresult only runs from local 1600 to 1630") else skip;
     if Tezos.sender =/= Tezos.source then failwith ("Only can be executed by the contract originator") else skip;
     var resp : list(operation) := nil;
     if tdate =/= s.target_date then failwith ("Not the target date to run") else skip;

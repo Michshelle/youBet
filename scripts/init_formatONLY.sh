@@ -11,3 +11,5 @@
 
 #GetResult
 ./tezos-client transfer 0 from alice to pool_manager --entrypoint 'getResult' -arg '"2021-08-04"' --burn-cap 0.02
+
+
