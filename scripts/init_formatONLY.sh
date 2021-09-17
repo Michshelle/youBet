@@ -6,10 +6,17 @@
 ./tezos-client originate contract pool_manager transferring 5 from alice running test_pool_manager.tz --init '(Pair (Pair (Pair (Pair {} 0) (Pair "1990-01-01" "1990-01-01")) (Pair (Pair 0 <Address>) (Pair {} {} ))) (Pair "2021-08-04" 0))' --burn-cap 1.5
 <Address> the address of the oracle contract.
 
+#Running Oracle to get prices for current trading day and previous trading day
+python ./scripts/updateOracleData/updateOracle.py
+
+#Set target date to bet for pool manager
+./tezos-client transfer 0 from alice to pool_manager --entrypoint 'setTargetdate' -arg '"YYYY-MM-DD"' --burn-cap 0.02
+#Change YYYY-MM-DD for to the specific date for betting
+
 #Bet
 ./tezos-client transfer 3 from bob to pool_manager --entrypoint 'bet' -arg 'False' --burn-cap 0.02
 
 #GetResult
 ./tezos-client transfer 0 from alice to pool_manager --entrypoint 'getResult' -arg '"2021-08-04"' --burn-cap 0.02
-
+#YYYY-MM-DD is the target date to run
 
