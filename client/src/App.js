@@ -10,47 +10,50 @@ const KT_ledger = "KT1NhgBVPmnHgpoWJ7fbuEhGY2Qqb8coNQsi"  //some of the QC rules
 const shortenAddress = addr =>
   addr.slice(0, 6) + "..." + addr.slice(addr.length - 6);
 
+const tezbridge = window.tezbridge;
+const tezos = new TezosToolkit("https://rpctest.tzbeta.net");
+
+//https://rpctest.tzbeta.net
+
 function App() {
-  const [ktBalance, setKtBalance] = useStae(undefined);
+  var [ktBalance, setKtBalance] = useState(undefined);
   const [ledgerInstance, setLedgerInstance] = useState(undefined);
   const [userAddress, setUserAddress] = useState(undefined);
-  const [balance, setBalance] = useState(undefined);
-  const [isOwner, setIsOwner] = useState(false);
-  const tezbridge = window.tezbridge;
-  const tezos = new TezosToolkit("http://localhost:8732");
-  tezos.setProvider({ signer: new TezBridgeSigner() });
+  var [balance, setBalance] = useState(undefined);
+  //const tezbridge = window.tezbridge;
+  //const tezos = new TezosToolkit("http://localhost:8732");
 
-  const ktManager = await tezos.tz.getManager(KT_ledger);
-  const _ktBalance = await tezos.tz.getBalance(KT_ledger).toNumber() / 1000000;
-  setKtBalance(_ktBalance);
-
+  useEffect(() => {
+    (async () => {
+      // set tezos Signer
+      tezos.setProvider({
+        signer: new TezBridgeSigner()
+      });
+      const _ledgerContract = await tezos.contract.at(KT_ledger);
+      setLedgerInstance(_ledgerContract);
+      var _ktBalance = await tezos.rpc.getBalance(KT_ledger) / 1000000;
+      setKtBalance(_ktBalance);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const initWallet = async () => {
     try {
       const _address = await tezbridge.request({ method: "get_source" });
       setUserAddress(_address);
       // gets user's balance
-      const _balance = await tezos.tz.getBalance(_address);
+      var _balance = await tezos.rpc.getBalance(_address);
       setBalance(_balance);
-      const storage = await ledgerInstance.storage();
-      if (ktManager === _address) {
-        setIsOwner(true);
-      }
     } catch (error) {
       console.log("error fetching the address or balance:", error);
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const _ledgerContract = await tezos.contract.at(KT_ledger);
-      setLedgerInstance(_ledgerContract);
-    })();
-  }, []);
-
   return (
     <div className="App">
-      <div className="app-title">Bet on SSE Composite Index</div>
+      <div className="app-title">Bet on SSE Composite Index on {shortenAddress(KT_ledger)},
+      <p>with { ktBalance } </p>
+      </div>
       <div className="logo">
         <img src="tezos-maker.png" alt="logo" />
       </div>
@@ -71,14 +74,13 @@ function App() {
                   onClick={async () => {
                     setUserAddress(undefined);
                     setBalance(undefined);
-                    setIsOwner(undefined);
                     await initWallet();
                   }}
                 >
                   {shortenAddress(userAddress)}
                 </button>
               </p>
-              {isOwner && (
+              {(
                 <p className="control">
                   <button
                     className="button is-warning is-light is-small"
@@ -99,6 +101,8 @@ function App() {
         "Loading the ledger info..."
       ) : (
         <Menu
+          tezos={tezos}
+          setKtBalance={setKtBalance}
           ktBalance={ktBalance}
           ledgerInstance={ledgerInstance}
           userAddress={userAddress}
