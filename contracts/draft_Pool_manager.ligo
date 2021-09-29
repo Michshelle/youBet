@@ -1,14 +1,14 @@
 type storage is 
 record [
-    current_result : nat;
-    target_date : string;
+    currentResult : nat;
+    targetDate : string;
     oracleAddress : address;
-    ybalance : nat;
-    nbalance : nat;
+    yBalance : nat;
+    nBalance : nat;
     register : map(address, bool);
     stake : map(address, nat);
-    last_cancelled : string;
-    last_distributed : string;
+    lastCancelled : string;
+    lastDistributed : string;
     accounts : map(address,nat);
 ]
 type return is list(operation) * storage
@@ -30,14 +30,14 @@ function sum_map (var m : map (address, nat)) : nat is block {
 function validatingamount (const s : storage) : unit is 
 block {
   const n : unit = Unit;
-  if Tezos.balance < (s.nbalance + s.ybalance + sum_map(s.accounts)) * 1mutez then failwith ("Cannot make any operation as the balance of the contract is smaller than the pool") else skip;
+  if Tezos.balance < (s.nBalance + s.yBalance + sum_map(s.accounts)) * 1mutez then failwith ("Cannot make any operation as the balance of the contract is smaller than the pool") else skip;
 } with n
 
 function adminwithdrawal (const amt : tez; var s : storage) : return is
 block {
     if Tezos.sender =/= Tezos.source then failwith ("Only can be executed by the contract originator") else skip;
     const total_value : nat = sum_map(s.accounts);
-    if Tezos.balance < (s.nbalance + s.ybalance + total_value +10000000n) * 1mutez + amt then failwith ("Admin cannot make any operation as the balance of the contract is smaller than the pool") else skip;
+    if Tezos.balance < (s.nBalance + s.yBalance + total_value +10000000n) * 1mutez + amt then failwith ("Admin cannot make any operation as the balance of the contract is smaller than the pool") else skip;
     const execontract : contract (unit) =
         case (Tezos.get_contract_opt (Tezos.sender) : option (contract (unit))) of
           Some (contract) -> contract
@@ -84,31 +84,33 @@ block {
   s.register[Tezos.sender] := betbool;
   if betbool = True then
   block {
-    s.ybalance := s.ybalance + Tezos.amount / 1mutez;
+    s.yBalance := s.yBalance + Tezos.amount / 1mutez;
   } else skip;
   if betbool = False then
   block {
-    s.nbalance := s.nbalance + Tezos.amount / 1mutez;
+    s.nBalance := s.nBalance + Tezos.amount / 1mutez;
   } else skip;
 } with ((nil : list(operation)),s)
 
 function setTargetdate(const ndate : string; var s : storage) : return is 
 block {
     if Tezos.sender =/= Tezos.source then failwith ("Only can be executed by the contract originator") else skip;
-    s.target_date := ndate;
+    s.targetDate := ndate;
 } with ((nil: list(operation)),s)
 
 function handleCallback(const orcvalue : nat; var s : storage) : return is
 block{
   if orcvalue = 0n then failwith("something wrong with fetched result!") else skip;
-  s.current_result := orcvalue;
+  //in this case, tezos.sender is actually the oracle contract
+  if Tezos.sender =/= s.oracleAddress then failwith ("Only can be executed by the manager itself") else skip;
+  s.currentResult := orcvalue;
   if orcvalue = 1n then
   block {
     for key -> value in map s.register block {
       if value = False then 
       block {
         case s.stake[key] of 
-          Some(found) -> s.stake[key] := found *  s.ybalance / s.nbalance + found
+          Some(found) -> s.stake[key] := found *  s.yBalance / s.nBalance + found
         | None -> failwith ("register pool and stake pool are not consistent!")
         end;
       } else s.stake[key] := 0n;
@@ -120,7 +122,7 @@ block{
       if value = True then 
       block {
         case s.stake[key] of 
-          Some(found) -> s.stake[key] := found *  s.nbalance / s.ybalance + found
+          Some(found) -> s.stake[key] := found *  s.nBalance / s.yBalance + found
         | None -> failwith ("register pool and stake pool are not consistent!")
         end;
       } else s.stake[key] := 0n;
@@ -133,8 +135,8 @@ block{
     | None -> s.accounts[key] := value
     end;
   };
-  s.ybalance := 0n;
-  s.nbalance := 0n;
+  s.yBalance := 0n;
+  s.nBalance := 0n;
   const empty_stake : map (address, nat) = map [];
   const empty_register : map (address, bool) = map [];
   s.stake := empty_stake;
@@ -145,11 +147,11 @@ function getResult(const tdate: string; var s : storage) : return is
 block{
     if Tezos.sender =/= Tezos.source then failwith ("Only can be executed by the contract originator") else skip;
     var resp : list(operation) := nil;
-    if tdate =/= s.target_date then failwith ("Not the target date to run") else skip;
-    if (s.ybalance / s.nbalance > 100n) or (s.nbalance / s.ybalance > 100n) then 
+    if tdate =/= s.targetDate then failwith ("Not the target date to run") else skip;
+    if (s.yBalance / s.nBalance > 100n) or (s.nBalance / s.yBalance > 100n) then 
     block {
-     s.last_cancelled := tdate;
-     s.current_result := 0n;
+     s.lastCancelled := tdate;
+     s.currentResult := 0n;
      for key -> value in map s.stake block {
        case s.accounts[key] of
          Some(pattern) -> s.accounts[key] := pattern + value
@@ -158,7 +160,7 @@ block{
      }
     } else 
     block {
-      s.last_distributed := tdate;
+      s.lastDistributed := tdate;
       var oracle : contract(contract(nat)) := 
       case(Tezos.get_entrypoint_opt("%getData", s.oracleAddress) : option (contract(contract(nat)))) of
        Some(c) -> c

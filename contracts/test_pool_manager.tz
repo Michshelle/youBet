@@ -3,11 +3,11 @@
             (or (string %getResult) (nat %handleCallback)))
         (or (string %setTargetdate) (unit %withdrawal))) ;
   storage
-    (pair (pair (pair (pair (map %accounts address nat) (nat %current_result))
-                      (pair (string %last_cancelled) (string %last_distributed)))
-                (pair (pair (nat %nbalance) (address %oracleAddress))
+    (pair (pair (pair (pair (map %accounts address nat) (nat %currentResult))
+                      (pair (string %lastCancelled) (string %lastDistributed)))
+                (pair (pair (nat %nBalance) (address %oracleAddress))
                       (pair (map %register address bool) (map %stake address nat))))
-          (pair (string %target_date) (nat %ybalance))) ;
+          (pair (string %targetDate) (nat %yBalance))) ;
   code { LAMBDA
            (map address nat)
            nat
@@ -488,6 +488,18 @@
                      COMPARE ;
                      EQ ;
                      IF { PUSH string "something wrong with fetched result!" ; FAILWITH } {} ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     CDR ;
+                     SENDER ;
+                     COMPARE ;
+                     NEQ ;
+                     IF { PUSH string "Only can be executed by the manager itself" ; FAILWITH }
+                        {} ;
                      SWAP ;
                      DUP ;
                      DUG 2 ;
