@@ -52,7 +52,7 @@ const Menu = ({
   return (
     <>
         <div className="app-subtitle">Choose the action you want to perform:</div>
-            <div className="card coffee_selection" key={userAddress}>
+            <div className="card index_selection" key={userAddress}>
               <div className="card-footer">
                 <div className="card-footer-item">
                 { isBurnt === undefined ? (
