@@ -32,7 +32,7 @@ function App() {
       setLedgerInstance(_ledgerContract);
       const _oracle = await tezos.contract.at(Oracle_contract);
       const _oracleStorage = await _oracle.storage();
-      let _oracleData = [_oracleStorage.currentd,_oracleStorage.currentq.c,_oracleStorage.previousd,_oracleStorage.previousq.c,_oracleStorage.result];
+      let _oracleData = [_oracleStorage.currentd,_oracleStorage.currentq.c,_oracleStorage.previousd,_oracleStorage.previousq.c];
       setOracleData(_oracleData);
       var _ktBalance = await tezos.rpc.getBalance(KT_ledger) / 1000000;
       setKtBalance(_ktBalance);
@@ -55,17 +55,16 @@ function App() {
   return (
     <div className="App">
       <div className="sidenav">Oracle contract: <a href="https://better-call.dev/granadanet/KT19LmmajQN5j8b5T2AxX6YJbxwiLoybKWYF/operations">{shortenAddress(Oracle_contract)}</a>
+        <p>Last Round:</p>
         <table>
           <tbody>
           <tr>
-            <th>{oracleData[0]}</th>
-            <th>{oracleData[2]}</th>
-            <th>Result</th>
+            <td className="column">{oracleData[0] === undefined ? (<>Loading</>) : (<>{oracleData[0]}</>)}</td>
+            <td className="cell">{oracleData[1] === undefined ? (<>Loading</>) : (<>{oracleData[1] / 1000000}</>) }</td>
           </tr>
           <tr>
-            <td>{oracleData[1]}</td>
-            <td>{oracleData[3]}</td>
-            <td></td>
+            <td className="column">{oracleData[2] === undefined ? (<>Loading</>) : (<>{oracleData[2]}</>)}</td>
+            <td className="cell">{oracleData[3] === undefined ? (<>Loading</>) : (<>{oracleData[3] / 1000000}</>) }</td>
           </tr>
           </tbody>
         </table>
@@ -98,19 +97,6 @@ function App() {
                   {shortenAddress(userAddress)}
                 </button>
               </p>
-              {(
-                <p className="control">
-                  <button
-                    className="button is-warning is-light is-small"
-                    onClick={async () => {
-
-                    }
-                    }
-                  >
-                    Bet
-                  </button>
-                </p>
-              )}
             </div>
           </>
         )}
