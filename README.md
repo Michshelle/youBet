@@ -1,5 +1,5 @@
-# Webpage Demo (unlink wallet):
+# Webpage Demo (when unlinking wallet):
 ![alt text](./demo_webpage_unit.png)
 
-# Webpage Demo (unlink wallet):
+# Webpage Demo (when linking wallet):
 ![alt text](./demo_webpage_init.png)
