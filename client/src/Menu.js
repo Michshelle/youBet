@@ -13,18 +13,18 @@ const Menu = ({
 }) => {
   const [isBurnt, setIsBurnt] = useState(false);
 
-  const bet = async (new_owner,bool_bet) => {
+  const bet = async (stake_amount,bool_bet) => {
     try {
       //const ledgerStorage = await ledgerInstance.storage()
       //const userLedger = await ledgerStorage.register.get(userAddress)
       const op = await ledgerInstance.methods
-        .bet(new_owner, bool_bet)
-        .send({ amount: 3000000, mutez: true });
+        .bet(bool_bet)
+        .send({ amount: stake_amount, mutez: true });
       await op.confirmation(10);
       if (op.includedInBlock !== Infinity) {
         const newBalance = await tezos.rpc.getBalance(userAddress);
         setBalance(newBalance);
-        alert("Transfer is done!")
+        alert("Transaction is done!")
       } else {
         throw Error("Transation not included in block");
       }
@@ -52,39 +52,41 @@ const Menu = ({
   return (
     <>
         <div className="app-subtitle">Choose the action you want to perform:</div>
-            <div className="card coffee_selection" key={userAddress}>
+            <div className="card index_selection" key={userAddress}>
               <div className="card-footer">
                 <div className="card-footer-item">
-                { isBurnt === undefined ? (
+                { isBurnt === false ? (
                   <span
-                    className="action"
+                    className="action is-medium"
                     onClick={async () => {
-                      setIsBurnt(undefined);
+                      setIsBurnt(false);
                       await burn();
                     }
                  }
                   >
-                    Burn
+                    Withdrawal
                   </span>
                 ) : (
                    <span 
-                      className="actioned"  
+                      className="actioned is-medium"  
                    >
-                     Burnt
+                     No Stake To Withdrawal
                    </span> 
                 )}          
                 </div>
                 <div className="card-footer-item">
-                  <div className="card-padding-line"> 
-                   New creditor: 
-                  </div>
                   <div className="card-padding-line">
-                   <input type="text" id="newCreditorAccount" ></input>
+                  <form method="get"> 
+                      Will go up in the coming round?<br />
+                      <label><input name="trend" id="trend" type="radio" value="0" />No   </label> 
+                      <label><input name="trend" id="trend" type="radio" value="1" />Yes  </label> 
+                  </form>
+                  <input type="text" id="amountOfStake" ></input>
                   </div>
                   <span
-                    className="action"
+                    className="action is-medium" style={{"marginLeft":"10%"}}
                     onClick={async () => {
-                      await bet(document.getElementById("newCreditorAccount").value)
+                      await bet(document.getElementById("amountOfStake").value,document.getElementById("trend").value)
                       }
                     }
                   >
