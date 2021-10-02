@@ -70,7 +70,10 @@ function App() {
         </table>
       </div>
       <div className="app-title">Bet on SSE Index</div>
-      <div className="app-subtitle">under <a href="https://better-call.dev/granadanet/KT1NhgBVPmnHgpoWJ7fbuEhGY2Qqb8coNQsi/operations">{shortenAddress(KT_ledger)}</a></div>
+      <div className="app-subtitle">under <a href="https://better-call.dev/granadanet/KT1NhgBVPmnHgpoWJ7fbuEhGY2Qqb8coNQsi/operations">{shortenAddress(KT_ledger)}</a>
+      <p>Current pool balance: {ktBalance === undefined ? (<>Loading</>) : (<>{ktBalance}</>) }</p>
+      </div>
+      
       <div className="logo">
         <img src="tezos-maker.png" alt="logo" />
       </div>
@@ -95,6 +98,8 @@ function App() {
                   }}
                 >
                   {shortenAddress(userAddress)}
+                  {":   "}
+                  {balance.c/1000000}
                 </button>
               </p>
             </div>

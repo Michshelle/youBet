@@ -15,12 +15,8 @@ const Menu = ({
 
   const bet = async (stake_amount,bool_bet) => {
     try {
-      //const ledgerStorage = await ledgerInstance.storage()
-      //const userLedger = await ledgerStorage.register.get(userAddress)
-      const op = await ledgerInstance.methods
-        .bet(bool_bet)
-        .send({ amount: stake_amount, mutez: true });
-      await op.confirmation(10);
+      const op = await ledgerInstance.methods.bet(bool_bet).send({ amount: stake_amount, mutez: true });
+      await op.confirmation(30);
       if (op.includedInBlock !== Infinity) {
         const newBalance = await tezos.rpc.getBalance(userAddress);
         setBalance(newBalance);
@@ -35,7 +31,7 @@ const Menu = ({
 
   const burn = async () => {
     try {
-      const op = await ledgerInstance.methods.withdrawal().send({ amount: 0 });
+      const op = await ledgerInstance.methods.withdrawal(0).send({ amount: 0 });
       await op.confirmation(30);
       if (op.includedInBlock !== Infinity) {
         const newBalance = await tezos.rpc.getBalance(userAddress);
@@ -54,7 +50,7 @@ const Menu = ({
         <div className="app-subtitle">Choose the action you want to perform:</div>
             <div className="card index_selection" key={userAddress}>
               <div className="card-footer">
-                <div className="card-footer-item">
+              {userAddress === undefined ? (<><div className="card-footer-item">Please connect your wallet</div></>) : (<><div className="card-footer-item">
                 { isBurnt === false ? (
                   <span
                     className="action is-medium"
@@ -78,8 +74,8 @@ const Menu = ({
                   <div className="card-padding-line">
                   <form method="get"> 
                       Will go up in the coming round?<br />
-                      <label><input name="trend" id="trend" type="radio" value="0" />No   </label> 
-                      <label><input name="trend" id="trend" type="radio" value="1" />Yes  </label> 
+                      <label><input name="trend" id="trend" type="radio" value="False" />No   </label> 
+                      <label><input name="trend" id="trend" type="radio" value="True" />Yes  </label> 
                   </form>
                   <input type="text" id="amountOfStake" ></input>
                   </div>
@@ -93,6 +89,9 @@ const Menu = ({
                     Bet
                   </span>                             
                 </div>
+                </>)}
+                
+
               </div>
             </div>
     </>
