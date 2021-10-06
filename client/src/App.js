@@ -12,7 +12,8 @@ const shortenAddress = addr =>
   addr.slice(0, 6) + "..." + addr.slice(addr.length - 6);
 
 const tezbridge = window.tezbridge;
-const tezos = new TezosToolkit("https://rpctest.tzbeta.net");
+const tezos = new TezosToolkit("http://localhost:8732");
+//const tezos = new TezosToolkit("https://rpctest.tzbeta.net");
 
 
 function App() {
@@ -111,6 +112,7 @@ function App() {
       ) : (
         <Menu
           tezos={tezos}
+          tezbridge={tezbridge}
           setKtBalance={setKtBalance}
           ktBalance={ktBalance}
           ledgerInstance={ledgerInstance}
