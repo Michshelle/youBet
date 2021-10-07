@@ -35,13 +35,15 @@ const Menu = ({
 //}
 
 const bet = async (stake_amount,bool_bet) => {
+   var mut_number = stake_amount * 1000000;
+   var str_stake_amount = mut_number.toString();
    tezbridge.request({
      method: 'inject_operations',
      operations: [
        {
         "kind": "transaction",
         "source": userAddress,
-        "amount": stake_amount*1000000,
+        "amount": str_stake_amount,
         "destination": ledgerInstance.address,
         "parameters":
         {
@@ -58,27 +60,31 @@ const bet = async (stake_amount,bool_bet) => {
    .catch(error => alert(error.toString()))
 };
 
-
-
   const burn = async () => {
     tezbridge.request({
       method: 'inject_operations',
       operations: [
         {
-          kind: 'transaction',
-          source: userAddress,
-          destination: ledgerInstance.address,
-          amount: 0,
-          parameters: {
-            "entrypoint": "withdrawal"
+          "kind": "transaction",
+          "source": userAddress,
+          "destination": ledgerInstance.address,
+          "amount": "0",
+          "parameters":
+          {
+              "entrypoint":"withdrawal",
+              "value":
+              {
+                  "prim":"Unit"
+              }
           }
         }
       ]
     })
-    .then(result => alert(JSON.stringify(result)))
+    .then(result => setIsBurnt(true))
     .catch(error => alert(error.toString()))
 
   };
+
   return (
     <>
         <div className="app-subtitle">Choose the action you want to perform:</div>

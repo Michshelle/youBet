@@ -14,11 +14,11 @@ python ./scripts/updateOracleData/updateOracle.py
 ##Change YYYY-MM-DD for to the specific date for betting
 
 #Bet
-./tezos-client transfer 3 from <tz account alias> to pool_manager --entrypoint 'bet' -arg 'False' --burn-cap 0.02
-##change <tz account alias> to the tz account you aliased
+./tezos-client transfer 3 from <tz account alias> to pool_manager --entrypoint 'bet' -arg 'bool_bet' --burn-cap 0.02
+##change <tz account alias> to the tz account you aliased, bool_bet is True or False
 
 #GetResult
-./tezos-client transfer 0 from alice to pool_manager --entrypoint 'getResult' -arg '"2021-08-04"' --burn-cap 0.02
+./tezos-client transfer 0 from alice to pool_manager --entrypoint 'getResult' -arg '"YYYY-MM-DD"' --burn-cap 0.02
 ##YYYY-MM-DD is the target date to run
 
 #Withdrawal

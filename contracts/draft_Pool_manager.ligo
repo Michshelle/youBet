@@ -1,3 +1,4 @@
+type mmap is map(address,nat);
 type storage is 
 record [
     currentResult : nat;
@@ -9,8 +10,10 @@ record [
     stake : map(address, nat);
     lastCancelled : string;
     lastDistributed : string;
-    accounts : map(address,nat);
+    accounts : mmap;
 ]
+
+type mmap is map(address,nat);
 type return is list(operation) * storage
 type actions is 
 | GetResult of string
@@ -20,12 +23,20 @@ type actions is
 | HandleCallback of nat
 | Withdrawal 
 
+const empty_stake : map (address, nat) = map [];
+const empty_register : map (address, bool) = map [];
+
 function sum_map (var m : map (address, nat)) : nat is block {
   var int_total : nat := 0n;
   for key -> value in map m block {
     int_total := int_total + value
   }
 } with (int_total)
+
+function delete (const key : address; var moves : mmap) : mmap is
+  block {
+    remove key from map moves
+  } with moves
 
 function validatingamount (const s : storage) : unit is 
 block {
@@ -137,10 +148,13 @@ block{
   };
   s.yBalance := 0n;
   s.nBalance := 0n;
-  const empty_stake : map (address, nat) = map [];
-  const empty_register : map (address, bool) = map [];
   s.stake := empty_stake;
   s.register := empty_register;
+  for key -> value in map s.accounts block {
+    if value = 0n then block { 
+        s.accounts := delete(key,s.accounts) 
+    } else skip;
+  }
 }with ((nil: list(operation)),s);
 
 function getResult(const tdate: string; var s : storage) : return is 
@@ -148,7 +162,7 @@ block{
     if Tezos.sender =/= Tezos.source then failwith ("Only can be executed by the contract originator") else skip;
     var resp : list(operation) := nil;
     if tdate =/= s.targetDate then failwith ("Not the target date to run") else skip;
-    if (s.yBalance / s.nBalance > 100n) or (s.nBalance / s.yBalance > 100n) then 
+    if ( s.yBalance / (s.nBalance + 1n) > 100n) or (  s.nBalance / (s.yBalance + 1n) > 100n) then 
     block {
      s.lastCancelled := tdate;
      s.currentResult := 0n;
@@ -157,7 +171,11 @@ block{
          Some(pattern) -> s.accounts[key] := pattern + value
        | None -> s.accounts[key] := value
        end;
-     }
+     };
+      s.yBalance := 0n;
+      s.nBalance := 0n;
+      s.stake := empty_stake;
+      s.register := empty_register;
     } else 
     block {
       s.lastDistributed := tdate;
