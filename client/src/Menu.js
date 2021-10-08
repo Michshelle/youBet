@@ -114,17 +114,22 @@ const bet = async (stake_amount,bool_bet) => {
                   <div className="card-padding-line">
                   <form method="get"> 
                       Will go up in the coming round?<br />
-                      <label><input name="trend" id="trend" type="radio" value="False" />No   </label> 
-                      <label><input name="trend" id="trend" type="radio" value="True" />Yes  </label> 
+                      <label><input name="trend" id="trend0" type="radio" value="False" />No   </label> 
+                      <label><input name="trend" id="trend1" type="radio" value="True" />Yes  </label> 
                   </form>
                   <input type="text" id="amountOfStake" ></input>
                   </div>
                   <span
                     className="action is-medium" style={{"marginLeft":"10%"}}
                     onClick={async () => {
-                      await bet(parseFloat(document.getElementById("amountOfStake").value),document.getElementById("trend").value)
+                      if (document.getElementById("trend0").checked) {
+                        await bet(parseFloat(document.getElementById("amountOfStake").value),document.getElementById("trend0").value);
+                      } 
+                      else if (document.getElementById("trend1").checked) {
+                        await bet(parseFloat(document.getElementById("amountOfStake").value),document.getElementById("trend1").value);
                       }
                     }
+                  }
                   >
                     Bet
                   </span>                             
