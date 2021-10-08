@@ -6,14 +6,14 @@ import "./bulma.css";
 import Menu from "./Menu.js"
 
 /* PUT HERE THE CONTRACT ADDRESS FOR YOUR OWN SANDBOX! */
-const KT_ledger = "KT1NhgBVPmnHgpoWJ7fbuEhGY2Qqb8coNQsi"  //some of the QC rules have been removed;
+const KT_ledger = "KT1FfBHieCMYD22ytpycXjNrM36T8gZjdbGB"  //some of the QC rules have been removed;
 const Oracle_contract = "KT19LmmajQN5j8b5T2AxX6YJbxwiLoybKWYF"
 const shortenAddress = addr =>
   addr.slice(0, 6) + "..." + addr.slice(addr.length - 6);
 
 const tezbridge = window.tezbridge;
-const tezos = new TezosToolkit("http://localhost:8732");
-//const tezos = new TezosToolkit("https://rpctest.tzbeta.net");
+//const tezos = new TezosToolkit("http://localhost:8732");
+const tezos = new TezosToolkit("https://rpctest.tzbeta.net");
 
 
 function App() {

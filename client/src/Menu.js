@@ -35,13 +35,15 @@ const Menu = ({
 //}
 
 const bet = async (stake_amount,bool_bet) => {
+   var mut_number = stake_amount * 1000000;
+   var str_stake_amount = mut_number.toString();
    tezbridge.request({
      method: 'inject_operations',
      operations: [
        {
         "kind": "transaction",
         "source": userAddress,
-        "amount": stake_amount*1000000,
+        "amount": str_stake_amount,
         "destination": ledgerInstance.address,
         "parameters":
         {
@@ -58,27 +60,31 @@ const bet = async (stake_amount,bool_bet) => {
    .catch(error => alert(error.toString()))
 };
 
-
-
   const burn = async () => {
     tezbridge.request({
       method: 'inject_operations',
       operations: [
         {
-          kind: 'transaction',
-          source: userAddress,
-          destination: ledgerInstance.address,
-          amount: 0,
-          parameters: {
-            "entrypoint": "withdrawal"
+          "kind": "transaction",
+          "source": userAddress,
+          "destination": ledgerInstance.address,
+          "amount": "0",
+          "parameters":
+          {
+              "entrypoint":"withdrawal",
+              "value":
+              {
+                  "prim":"Unit"
+              }
           }
         }
       ]
     })
-    .then(result => alert(JSON.stringify(result)))
+    .then(result => setIsBurnt(true))
     .catch(error => alert(error.toString()))
 
   };
+
   return (
     <>
         <div className="app-subtitle">Choose the action you want to perform:</div>
@@ -108,17 +114,22 @@ const bet = async (stake_amount,bool_bet) => {
                   <div className="card-padding-line">
                   <form method="get"> 
                       Will go up in the coming round?<br />
-                      <label><input name="trend" id="trend" type="radio" value="False" />No   </label> 
-                      <label><input name="trend" id="trend" type="radio" value="True" />Yes  </label> 
+                      <label><input name="trend" id="trend0" type="radio" value="False" />No   </label> 
+                      <label><input name="trend" id="trend1" type="radio" value="True" />Yes  </label> 
                   </form>
                   <input type="text" id="amountOfStake" ></input>
                   </div>
                   <span
                     className="action is-medium" style={{"marginLeft":"10%"}}
                     onClick={async () => {
-                      await bet(parseFloat(document.getElementById("amountOfStake").value),document.getElementById("trend").value)
+                      if (document.getElementById("trend0").checked) {
+                        await bet(parseFloat(document.getElementById("amountOfStake").value),document.getElementById("trend0").value);
+                      } 
+                      else if (document.getElementById("trend1").checked) {
+                        await bet(parseFloat(document.getElementById("amountOfStake").value),document.getElementById("trend1").value);
                       }
                     }
+                  }
                   >
                     Bet
                   </span>                             
